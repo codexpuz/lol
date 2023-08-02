@@ -660,6 +660,7 @@ While ($DoNotExit)  {
 	Switch -Wildcard ($LastMessageText)  {
 	  "/select $ipV4 *"  { #Important: run with a space
 	    #The user wants to run a command
+     		Write-Host "LastMessageText: $LastMessageText"
 		#$CommandToRun = ($LastMessageText -split ("/select $ipV4 "))[1] #This will remove "run "
                 $Commands = $CommandToRun -split "`r?`n"
 		#$Message = "Ok $($LastMessage.Message.from.first_name), I will try to run the following command on $ipV4 : `n<b>$($CommandToRun)</b>"
@@ -669,9 +670,10 @@ While ($DoNotExit)  {
 		Try {
 		   foreach ($Command in $Commands) {
      			if (![string]::IsNullOrWhiteSpace($CommandToRun)) {
-   					 Invoke-Expression $CommandToRun | Out-String | ForEach-Object {
-       					 $CommandToRun_Result += "`n$($_)"
-    				}
+			        Write-Host "Command to Run: $CommandToRun"
+   			        Invoke-Expression $CommandToRun | Out-String | ForEach-Object {
+       			        $CommandToRun_Result += "`n$($_)"
+    			  }
 			}
                    }
                  }
