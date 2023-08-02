@@ -676,11 +676,11 @@ While ($DoNotExit)  {
     			  }
 			}
                    }
-                 }
-		
+		}
 		Catch  {
 		  $CommandToRun_Result = $_.Exception.Message
 		}
+  }
 		
 		$Message = "$($LastMessage.Message.from.first_name), I've ran <b>$($CommandToRun)</b> and this is the output:`n$CommandToRun_Result"
 		$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
