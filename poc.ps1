@@ -677,7 +677,7 @@ While ($DoNotExit)  {
 			}
                    }
                  }
-		}
+		
 		Catch  {
 		  $CommandToRun_Result = $_.Exception.Message
 		}
