@@ -668,8 +668,11 @@ While ($DoNotExit)  {
 		#Run the command
 		Try {
 		   foreach ($Command in $Commands) {
-    			Invoke-Expression $Command | Out-String | ForEach-Object {
-         		$CommandToRun_Result += "`n$($_)"
+     			if (![string]::IsNullOrWhiteSpace($CommandToRun)) {
+   					 Invoke-Expression $CommandToRun | Out-String | ForEach-Object {
+       					 $CommandToRun_Result += "`n$($_)"
+    				}
+			}
                    }
                  }
 		}
