@@ -739,7 +739,9 @@ While ($DoNotExit)  {
             $port = $ip -replace '\s*$', ''
             netcat $ip $port
         } else {
-            Write-Host "Invalid IPv4 address format."
+            Write-Host "$ip"
+	    Write-Host "$port"
+            Write-Host "$LastMessageText"
 	}
       }
       "/stopnc $ipV4"{
