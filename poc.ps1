@@ -660,31 +660,23 @@ While ($DoNotExit)  {
 	Switch -Wildcard ($LastMessageText)  {
 	  "/select $ipV4 *"  { #Important: run with a space
 	    #The user wants to run a command
-     		if ($LastMessageText -match "/select (\d+\.\d+\.\d+\.\d+)") {
-		    $ipV4 = $matches[1]
-		    Write-Host "IP Address: $ipV4"
-		    $CommandToRun = $LastMessageText -replace "/select $ipV4 ", ""
-		    Write-Host "CommandToRun: $CommandToRun"
-		}
+		 $CommandToRun = $LastMessageText -replace "/select $ipV4 ", ""
+		
 		#$CommandToRun = ($LastMessageText -split ("/select $ipV4 "))[1] #This will remove "run "
-                $Commands = $CommandToRun -split "`r?`n"
+                #$Commands = $CommandToRun -split "`r?`n"
 		#$Message = "Ok $($LastMessage.Message.from.first_name), I will try to run the following command on $ipV4 : `n<b>$($CommandToRun)</b>"
 		#$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
-		Write-Host "Command to Run: $CommandToRun"
 		#Run the command
 		Try {
-		   foreach ($Command in $Commands) {
-     			Write-Host "$Command"
      			if (![string]::IsNullOrWhiteSpace($CommandToRun)) {
    			        Invoke-Expression $CommandToRun | Out-String | ForEach-Object {
        			        $CommandToRun_Result += "`n$($_)"
     			  }
 			}
                    }
-		}
 		Catch  {
 		  $CommandToRun_Result = $_.Exception.Message
-		   }
+		}
 		
 		$Message = "$($LastMessage.Message.from.first_name), I've ran <b>$($CommandToRun)</b> and this is the output:`n$CommandToRun_Result"
 		$SendMessage = Invoke-RestMethod -Uri "https://api.telegram.org/bot$($BotToken)/sendMessage?chat_id=$($ChatID)&text=$($Message)&parse_mode=html"
