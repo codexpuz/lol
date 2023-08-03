@@ -740,8 +740,9 @@ While ($DoNotExit)  {
             netcat $ip $port
         } else {
             Write-Host "Invalid IPv4 address format."
-	    Write-Host "$LastMessageText"
-        }
+	    Write-Host "$ip"
+	    Write-Host "$port"
+	}
       }
       "/stopnc $ipV4"{
         stopnetcat
