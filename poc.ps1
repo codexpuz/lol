@@ -669,9 +669,9 @@ While ($DoNotExit)  {
 		#Run the command
 		Try {
      			if (![string]::IsNullOrWhiteSpace($CommandToRun)) {
-		   	    Invoke-Expression $CommandToRun | ForEach-Object {
-		    		$CommandToRun_Result += $_
-			    }
+		   	    Invoke-Expression $CommandToRun | Out-String | ForEach-Object {
+         		    $CommandToRun_Result += "`n$($_)"
+                   	  }
 			}
                    }
 		Catch  {
